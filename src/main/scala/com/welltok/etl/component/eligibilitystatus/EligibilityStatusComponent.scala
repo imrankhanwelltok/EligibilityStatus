@@ -12,8 +12,8 @@ import com.welltok.etl.engine.service.LoggerFactory
 
 
 
-class CheckEligibilityStatus extends StepComponent {
-  val logger: Logger = LoggerFactory.getLogger(classOf[CheckEligibilityStatus])
+class EligibilityStatusComponent extends StepComponent {
+  val logger: Logger = LoggerFactory.getLogger(classOf[EligibilityStatusComponent])
   var dbConnectionObject: DBService = null
   def process(stepContext: StepContext): Object =
     {
@@ -24,7 +24,7 @@ class CheckEligibilityStatus extends StepComponent {
 
         initServices(stepContext)
 
-        //  Get Args from StepContext.arguments
+        
         val successDf = stepContext.getSuccessDataFrame()
 
         val sponsorId = if (stepContext.getArguments().containsKey("sponsorID")) stepContext.getArguments().get("sponsorID").toString() else null

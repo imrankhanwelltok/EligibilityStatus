@@ -12,12 +12,12 @@
 	</configurations>
 	
 	<publications>  
-	     <artifact name="db-reader-step" type="jar" ext="jar"/>    
-	     <artifact name="db-reader-step" type="pom" ext="pom"/> 
+	     <artifact name="eligibility-status-step" type="jar" ext="jar"/>    
+	     <artifact name="eligibility-status-step" type="pom" ext="pom"/> 
 	 </publications> 
 	 
 	<dependencies>	
-		<!-- replace all this with pulling in the CheckEligibilityStatus library --> 
+		<!-- replace all this with pulling in the EligibilityStatus library --> 
 		<dependency org="com.welltok.etl" name="process-engine" rev="5.0.110" conf="compile->default" />
 		
 	</dependencies>

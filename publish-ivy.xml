@@ -1,7 +1,7 @@
 <ivy-module version="2.0"
 	xmlns:xsi="http://www.w3.org/2001/XmlSchema-instance">
 	
-	<info organisation="com.welltok.etl" module="db-reader-step" revision="1.0" />
+	<info organisation="com.welltok.etl" module="eligibility-status-step" revision="1.0" />
 	<configurations defaultconfmapping="default">
 		<conf name="compile" description="provides compile-time deps" />
 		<conf name="runtime" description="provides runtime deps" />
@@ -10,8 +10,8 @@
 		<conf name="default" description="default" />
 	</configurations>
 	<publications>  
-	     <artifact name="db-reader-step" type="jar" ext="jar"/> 
-	     <artifact name="db-reader-step" type="pom" ext="pom"/>   
+	     <artifact name="eligibility-status-step" type="jar" ext="jar"/> 
+	     <artifact name="eligibility-status-step" type="pom" ext="pom"/>   
 	 </publications> 
 	<dependencies>
 
