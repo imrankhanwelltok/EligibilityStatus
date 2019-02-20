@@ -22,13 +22,25 @@ class EligibilityStatusComponent extends StepComponent {
       try {
         // initialize the services for the class
 
+        logger.info("***************")
+        
+        logger.info("Intializing Objects")
         initServices(stepContext)
-
+        logger.info("Intializing Objects")
         
         val successDf = stepContext.getSuccessDataFrame()
 
+        logger.info("Success DataFrame count is : " + successDf.count())
+        
+        
         val sponsorId = if (stepContext.getArguments().containsKey("sponsorID")) stepContext.getArguments().get("sponsorID").toString() else null
+      
+        logger.info("Sponsor ID  is : " + sponsorId.toString())
+        
         val eventId = if (stepContext.getArguments.containsKey("processEventId")) stepContext.getArguments().get("processEventId").toString() else null
+        
+         logger.info("Event ID  is : " + eventId.toString())
+        
         val keySpaceName: String = "person"
         val loadTableName: String = "eligibility_status"
         val whereClause: String = """sponsor_id = '""" + sponsorId + """'"""
@@ -38,40 +50,48 @@ class EligibilityStatusComponent extends StepComponent {
 
         logger.info("***************")
 
-        println("successDf count: " + successDf.count())
+        logger.info("Eligibility Status Count : " + eligibilityStatusDf.count())
 
-        //Populate successdataframe with Status field
-        val recordsWithStatusDf: DataFrame = dbConnectionObject.populateStatus(successDf, eligibilityStatusDf)
-        logger.info("recordsWithStatusDf count: " + recordsWithStatusDf.count())
-
-        //Get new data with status changed and needs to be written to person.eligibility_status table
-        val getEligibilityNewDataDf = dbConnectionObject.getEligibilityDf(recordsWithStatusDf, eligibilityStatusDf, "currentTable", eventId)
-        logger.info("getEligibilityNewDataDf count: " + getEligibilityNewDataDf.count())
-
-        //Get data with status changed and needs to be written to person.eligibility_status_history table
-        val getEligibilityHistoryDataDf = dbConnectionObject.getEligibilityDf(recordsWithStatusDf, eligibilityStatusDf, "historyTable", eventId)
-        logger.info("getEligibilityHistoryDataDf count: " + getEligibilityHistoryDataDf.count())
-
-        //Write data to current eligibility table
-        val statusCurrentTableWrite = dbConnectionObject.writeToCassandra(getEligibilityNewDataDf, "person", "eligibility_status")
-        if (statusCurrentTableWrite == true) {
-          logger.info("Data successfully writtent into person.eligibility_status table")
-        } else {
-          logger.info("There seems to be issue while writing data into person.eligibility_status table , please check log for more details ")
+        if ( successDf.count() > 0)
+        {
+          
+              //Populate successdataframe with Status field
+              val recordsWithStatusDf: DataFrame = dbConnectionObject.populateStatus(successDf, eligibilityStatusDf)
+              logger.info("recordsWithStatusDf count: " + recordsWithStatusDf.count())
+      
+              //Get new data with status changed and needs to be written to person.eligibility_status table
+              val getEligibilityNewDataDf = dbConnectionObject.getEligibilityDf(recordsWithStatusDf, eligibilityStatusDf, "currentTable", eventId)
+              logger.info("getEligibilityNewDataDf count: " + getEligibilityNewDataDf.count())
+      
+              //Get data with status changed and needs to be written to person.eligibility_status_history table
+              val getEligibilityHistoryDataDf = dbConnectionObject.getEligibilityDf(recordsWithStatusDf, eligibilityStatusDf, "historyTable", eventId)
+              logger.info("getEligibilityHistoryDataDf count: " + getEligibilityHistoryDataDf.count())
+      
+              //Write data to current eligibility table
+              val statusCurrentTableWrite = dbConnectionObject.writeToCassandra(getEligibilityNewDataDf, "person", "eligibility_status")
+              if (statusCurrentTableWrite == true) {
+                logger.info("Data successfully writtent into person.eligibility_status table")
+              } else {
+                logger.info("There seems to be issue while writing data into person.eligibility_status table , please check log for more details ")
+              }
+      
+              //Write data to current eligibility table
+              val statusHistoryTableWrite = dbConnectionObject.writeToCassandra(getEligibilityHistoryDataDf, "person", "eligibility_status_history")
+              if (statusHistoryTableWrite == true) {
+                logger.info("Data successfully writtent into person.eligibility_status_history table")
+              } else {
+                logger.info("There seems to be issue while writing data into person.eligibility_status_history table , please check log for more details ")
+              }
+              var finalDf = recordsWithStatusDf
+              finalDf.cache()        
+              logger.printDataframe(finalDf)
         }
-
-        //Write data to current eligibility table
-        val statusHistoryTableWrite = dbConnectionObject.writeToCassandra(getEligibilityHistoryDataDf, "person", "eligibility_status_history")
-        if (statusHistoryTableWrite == true) {
-          logger.info("Data successfully writtent into person.eligibility_status_history table")
-        } else {
-          logger.info("There seems to be issue while writing data into person.eligibility_status_history table , please check log for more details ")
+        else
+        {
+              logger.info("Success data frame had 0 records hence skipped the processing step ")
+              var finalDf :DataFrame = null
+            //  finalDf.cache()  
         }
-
-        var finalDf = recordsWithStatusDf
-        finalDf.cache()
-
-        logger.printDataframe(finalDf)
 
       } catch {
         case e @ (_: Exception | _: Error | _: Throwable) =>
